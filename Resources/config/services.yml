@@ -1,0 +1,41 @@
+services:
+    soil_comment_digest.command.comments_digest:
+        class: Soil\CommentsDigestBundle\Command\CommentsDigest
+        arguments: [@soil_comment_digest.model.comments_model, @soil_comment_digest.service.comment_promoter]
+        calls:
+            - [setLogger, [@logger]]
+            - [setConfigInfo, ["Notification mail_gateway", %mail_gateway%]]
+        tags:
+            - { name: console.command }
+            - { name: monolog.logger, channel: queue }
+
+
+
+    soil_comment_digest.service.comment_promoter:
+        class: Soil\CommentsDigestBundle\Service\CommentPromoter
+        arguments: []
+        calls:
+            - [addMiner, [@soil_comment_digest.subscribers_miner.entity_owners_miner]]
+            - [addMiner, [@soil_comment_digest.subscribers_miner.answers_miner]]
+            - [addMiner, [@soil_semantic_http_endpoint.subscribers_miner.important_for_me_miner]]
+            - [addMiner, [@soil_semantic_http_endpoint.subscribers_miner.subscribers_miner]]
+
+
+
+    soil_comment_digest.model.comments_model:
+        class: Soil\CommentsDigestBundle\Model\CommentsModel
+        arguments: [@soil_rdf_processor.sparql_client, %semantic_namespaces%]
+        tags:
+            -  { name: soil_semantic_repository_model }
+
+
+    soil_comment_digest.subscribers_miner.entity_owners_miner:
+        class: Soil\CommentsDigestBundle\SubscribersMiner\EntityOwnersMiner
+        tags:
+            -  { name: soil_comments_digest.subscribers_miner }
+
+    soil_comment_digest.subscribers_miner.answers_miner:
+        class: Soil\CommentsDigestBundle\SubscribersMiner\AnswersMiner
+        tags:
+            -  { name: soil_comments_digest.subscribers_miner }
+

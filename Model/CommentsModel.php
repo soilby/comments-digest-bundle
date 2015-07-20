@@ -1,0 +1,78 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: fliak
+ * Date: 19.7.15
+ * Time: 22.48
+ */
+
+namespace Soil\CommentsDigestBundle\Model;
+
+
+
+use EasyRdf\Literal;
+
+class CommentsModel {
+
+
+    /**
+     * @var \EasyRdf\Sparql\Client
+     */
+    protected $endpoint;
+
+    /**
+     * @var array
+     */
+    protected $namespaces;
+
+    public function __construct($endpoint, $namespaces)    {
+        $this->endpoint = $endpoint;
+        $this->namespaces = $namespaces;
+
+        foreach ($namespaces as $namespace => $uri) {
+            \EasyRdf\RdfNamespace::set($namespace, $uri);
+        }
+    }
+
+    public function getComments(\DateTime $startDate, \DateTime $endDate)   {
+
+
+        $startDate = (new Literal\DateTime($startDate))->dumpValue('text');
+        $endDate = (new Literal\DateTime($endDate))->dumpValue('text');
+
+        $query = <<<QUERY
+
+    select ?comment ?author ?creationDate ?entity ?entityAuthor ?parent ?parentAuthor
+
+    where {
+
+     ?comment    a tal:Comment .
+     ?comment tal:author ?author .
+
+     ?comment tal:relatedObject ?entity .
+     ?entity tal:author ?entityAuthor .
+
+
+     OPTIONAL {
+        ?comment tal:parent ?parent .
+        ?parent tal:author ?parentAuthor .
+     } .
+
+     ?comment tal:creationDate ?creationDate .
+
+    FILTER (?creationDate > $startDate && ?creationDate < $endDate) .
+
+    }
+
+QUERY;
+
+
+
+
+        $result = $this->endpoint->query($query);
+
+
+        return $result;
+
+    }
+} 

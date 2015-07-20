@@ -1,0 +1,18 @@
+{
+    "name": "soil/comments-digest-bundle",
+    "version": "0.0.1",
+    "dist": {
+        "url": "https://github.com/soilby/comments-digest-bundle",
+        "type": "vcs"
+    },
+    "autoload": {
+        "psr-4": {
+            "Soil\\CommentsDigestBundle\\": "./"
+        }
+    },
+    "require": {
+        "php": ">=5.3.3",
+        "symfony/symfony": "2.6.*",
+        "easyrdf/easyrdf": "dev-master"
+    }
+}
