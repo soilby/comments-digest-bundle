@@ -8,22 +8,39 @@
 
 namespace Soil\CommentsDigestBundle\Entity;
 
+use Soil\CommentsDigestBundle\Annotation\Entity;
 
 class CommentBrief {
 
+    /**
+     * @var
+     * @Entity("Soil\DiscoverBundle\Entity\Comment")
+     */
     protected $comment;
 
     protected $creationDate;
 
+    /**
+     * @var
+     * @Entity("Soil\DiscoverBundle\Entity\Agent")
+     */
     protected $author;
 
+
+    /**
+     * @var
+     * @Entity
+     */
     protected $entity;
 
-    protected $entityAuthor;
 
+    /**
+     * @var
+     * @Entity("Soil\DiscoverBundle\Entity\Comment")
+     */
     protected $parent;
 
-    protected $parentAuthor;
+    protected $subscriber;
 
     /**
      * @return mixed
@@ -92,22 +109,6 @@ class CommentBrief {
     /**
      * @return mixed
      */
-    public function getEntityAuthor()
-    {
-        return $this->entityAuthor;
-    }
-
-    /**
-     * @param mixed $entityAuthor
-     */
-    public function setEntityAuthor($entityAuthor)
-    {
-        $this->entityAuthor = $entityAuthor;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getParent()
     {
         return $this->parent;
@@ -124,19 +125,23 @@ class CommentBrief {
     /**
      * @return mixed
      */
-    public function getParentAuthor()
+    public function getSubscriber()
     {
-        return $this->parentAuthor;
+        return $this->subscriber;
     }
 
     /**
-     * @param mixed $parentAuthor
+     * @param mixed $subscriber
      */
-    public function setParentAuthor($parentAuthor)
+    public function setSubscriber($subscriber)
     {
-        $this->parentAuthor = $parentAuthor;
+        $this->subscriber = $subscriber;
     }
 
+
+    public function getCheckSum()   {
+        return $this->subscriber . '-' . is_object($this->comment) ? $this->comment->getOrigin() : $this->comment;
+    }
 
 
 }

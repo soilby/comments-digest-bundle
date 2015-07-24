@@ -2,39 +2,46 @@
 /**
  * Created by PhpStorm.
  * User: fliak
- * Date: 20.7.15
- * Time: 0.34
+ * Date: 22.7.15
+ * Time: 2.17
  */
 
 namespace Soil\CommentsDigestBundle\SubscribersMiner;
 
-use Soil\CommentsDigestBundle\Entity\CommentBrief;
 use EasyRdf\Literal;
+use EasyRdf\Resource;
+use Soil\CommentsDigestBundle\Entity\CommentBrief;
+use Soil\CommentsDigestBundle\Service\BriefPropertySetter;
+use Soil\CommentsDigestBundle\Service\SubscribersMiner;
 
-class AnswersMiner extends RDFMinerAbstract {
+class EntityAuthorsMiner extends RDFMinerAbstract {
+
+
 
     public function mine(\DateTime $fromDate)  {
         $fromDate = (new Literal\DateTime($fromDate))->dumpValue('text');
 
         $query = <<<QUERY
 
-select ?comment ?creationDate ?parent ?entity ?subscriber
+select ?comment ?creationDate ?author ?entity ?subscriber
 
 where {
      ?comment    a tal:Comment .
+     
+     ?comment tal:author ?author .
+
      ?comment tal:relatedObject ?entity .
-     ?comment tal:parent ?parent .
-     ?parent tal:author ?subscriber .
 
+     ?entity tal:author ?subscriber .
 
-?comment tal:creationDate ?creationDate .
+     ?comment tal:creationDate ?creationDate .
 
 FILTER (?creationDate > $fromDate ) .
 
     }
-
 QUERY;
         //FILTER (?subscriber = <http://www.talaka.by/user/132> ) .
+
         echo $query;
 
         $result = $this->endpoint->query($query);

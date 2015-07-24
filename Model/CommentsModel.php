@@ -34,6 +34,13 @@ class CommentsModel {
         }
     }
 
+    public function getCommentsForIdeaAuthors(\DateTime $fromDate) {
+
+
+
+
+    }
+
     public function getComments(\DateTime $startDate, \DateTime $endDate)   {
 
 
@@ -50,13 +57,14 @@ class CommentsModel {
      ?comment tal:author ?author .
 
      ?comment tal:relatedObject ?entity .
-     ?entity tal:author ?entityAuthor .
-
 
      OPTIONAL {
         ?comment tal:parent ?parent .
         ?parent tal:author ?parentAuthor .
      } .
+     OPTIONAL {
+        ?entity tal:author ?entityAuthor .
+     }.
 
      ?comment tal:creationDate ?creationDate .
 
@@ -66,7 +74,7 @@ class CommentsModel {
 
 QUERY;
 
-
+        echo $query;
 
 
         $result = $this->endpoint->query($query);

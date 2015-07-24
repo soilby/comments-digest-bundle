@@ -13,7 +13,10 @@ use EasyRdf\Literal;
 use EasyRdf\Resource;
 use Soil\CommentsDigestBundle\Entity\CommentBrief;
 use Soil\CommentsDigestBundle\Model\CommentsModel;
+use Soil\CommentsDigestBundle\Service\SubscribersReducer;
 use Soil\CommentsDigestBundle\Service\CommentPromoter;
+use Soil\CommentsDigestBundle\Service\SubscribersMiner;
+use Soil\NotificationBundle\Service\Notification;
 use Soil\RDFProcessorBundle\Service\EndpointClient;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Console\Command\Command;
@@ -40,14 +43,27 @@ class CommentsDigest extends Command    {
     protected $commentsModel;
 
     /**
-     * @var CommentPromoter
+     * @var SubscribersMiner
      */
-    protected $commentPromoter;
+    protected $subscribersMiner;
 
-    public function __construct($commentsModel, $commentPromoter)   {
+
+    /**
+     * @var Notification
+     */
+    protected $notifyService;
+
+    /**
+     * @var SubscribersReducer
+     */
+    protected $subscribersReducer;
+
+    public function __construct($commentsModel, $subscribersMiner, $subscribersReducer, $notifyService)   {
 
         $this->commentsModel = $commentsModel;
-        $this->commentPromoter = $commentPromoter;
+        $this->subscribersMiner = $subscribersMiner;
+        $this->subscribersReducer = $subscribersReducer;
+        $this->notifyService = $notifyService;
 
         parent::__construct();
     }
@@ -61,38 +77,25 @@ class CommentsDigest extends Command    {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $yesterday = new \DateTime('yesterday');
-        $tomorrow = new \DateTime('tomorrow');
-        $comments = $this->commentsModel->getComments($yesterday, $tomorrow);
+        $fromDate = new \DateTime('-6 day');
 
 
-        $reflection = new \ReflectionClass(CommentBrief::class);
-//var_dump(count($comments));exit();
 
+        $subscribersIndex = $this->subscribersMiner->mine($fromDate);
 
-        foreach ($comments as $commentInfo) {
-            $brief = new CommentBrief();
+//        $forUser = $subscribersIndex->getForSubscriber("http://www.talaka.by/user/8785");
 
-            foreach ($commentInfo as $field => $value)  {
-                if ($reflection->hasProperty($field))   {
-                    $property = $reflection->getProperty($field);
-                    $property->setAccessible(true);
+        $byUserIndex = $subscribersIndex->getBySubscriberIndex();
 
-                    if ($value instanceof Resource) {
-                        $value = $value->getUri();
-                    }
-                    elseif ($value instanceof Literal)  {
-                        $value = $value->getValue();
-                    }
+        foreach ($byUserIndex as $userURI => $groupedComments)  {
 
-                    $property->setValue($brief, $value);
-
-                }
-            }
-
-            echo $brief->getComment();
-            $this->commentPromoter->promote($brief);
+            $this->notifyService->notify('CommentsDigestNotification', $userURI, [
+                'groupedComments' => $groupedComments
+            ]);
         }
+
+
+//        $subscribersList = $this->subscribersReducer->reduce($subscribersList);
 
     }
 
