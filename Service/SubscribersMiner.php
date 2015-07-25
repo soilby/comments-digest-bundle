@@ -12,6 +12,8 @@ namespace Soil\CommentsDigestBundle\Service;
 
 use EasyRdf\Literal;
 use EasyRdf\Resource;
+use Monolog\Logger;
+use Soil\AckService\Service\Ack;
 use Soil\CommentsDigestBundle\Entity\CommentBrief;
 use Soil\CommentsDigestBundle\Entity\CommentBriefIndex;
 use Soil\DiscoverBundle\Service\Resolver;
@@ -20,6 +22,36 @@ class SubscribersMiner {
 
     protected $miners = [];
 
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
+     * @var Ack
+     */
+    protected $ackService;
+
+    /**
+     * @param Ack $ackService
+     */
+    public function setAckService($ackService)
+    {
+        $this->ackService = $ackService;
+    }
+
+    /**
+     * @param Logger $logger
+     */
+    public function setLogger($logger)
+    {
+        $this->logger = $logger;
+    }
+
+
+
+
+
 
     /**
      * @param \DateTime $date
@@ -27,7 +59,8 @@ class SubscribersMiner {
      */
     public function mine(\DateTime $date)  {
 
-        $subscriptions = new CommentBriefIndex();
+        $subscriptions = new CommentBriefIndex($this->ackService);
+        $subscriptions->setLogger($this->logger);
 
         foreach ($this->miners as $miner)   {
 
@@ -45,4 +78,4 @@ class SubscribersMiner {
         $this->miners[] = $miner;
     }
 
-} 
+}

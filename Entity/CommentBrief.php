@@ -140,7 +140,7 @@ class CommentBrief {
 
 
     public function getCheckSum()   {
-        return $this->subscriber . '-' . is_object($this->comment) ? $this->comment->getOrigin() : $this->comment;
+        return $this->subscriber . '-' . (is_object($this->comment) ? $this->comment->getOrigin() : $this->comment);
     }
 
 

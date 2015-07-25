@@ -77,7 +77,7 @@ class CommentsDigest extends Command    {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $fromDate = new \DateTime('-6 day');
+        $fromDate = new \DateTime('today 22:00');
 
 
 
@@ -89,9 +89,10 @@ class CommentsDigest extends Command    {
 
         foreach ($byUserIndex as $userURI => $groupedComments)  {
 
-            $this->notifyService->notify('CommentsDigestNotification', $userURI, [
+            $processed = $this->notifyService->notify('CommentsDigestNotification', $userURI, [
                 'groupedComments' => $groupedComments
             ]);
+
         }
 
 
