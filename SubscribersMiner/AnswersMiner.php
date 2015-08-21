@@ -13,8 +13,11 @@ use EasyRdf\Literal;
 
 class AnswersMiner extends RDFMinerAbstract {
 
-    public function mine(\DateTime $fromDate)  {
+    public function mine(\DateTime $fromDate, $period)  {
         $fromDate = (new Literal\DateTime($fromDate))->dumpValue('text');
+
+
+        $periodFilter = $this->getFilterForPeriod($period);
 
         $query = <<<QUERY
 
@@ -27,11 +30,21 @@ where {
      ?parent tal:author ?subscriber .
 
 
-?comment tal:creationDate ?creationDate .
+     ?comment tal:creationDate ?creationDate .
 
-FILTER (?creationDate > $fromDate ) .
+     FILTER (?creationDate > $fromDate ) .
 
-    }
+     OPTIONAL {
+        ?subscriber tal:subscriptionApplied ?subscription .
+        ?subscription tal:subscriptionPeriod ?period .
+        ?subscription tal:subscriptionType ?subscriptionType .
+
+     }
+
+     FILTER (!bound(?subscription) || ?subscriptionType = tal:SubscriptionAnswers) .
+     $periodFilter
+
+}
 
 QUERY;
         //FILTER (?subscriber = <http://www.talaka.by/user/132> ) .

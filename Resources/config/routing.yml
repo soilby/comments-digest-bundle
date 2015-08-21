@@ -1,0 +1,13 @@
+soil_comments_digest.get_subscription_state:
+    path:     /subscription/{agentURI}
+    defaults: {       _controller: soil_comment_digest.controller.subscribe:getStateAction, expected_class: false }
+    methods: [GET]
+    requirements:
+        agentURI: .+
+
+soil_comments_digest.save_subscription_state:
+    path:     /subscription/{agentURI}
+    defaults: {       _controller: soil_comment_digest.controller.subscribe:saveStateAction, expected_class: false }
+    methods: [POST, OPTIONS]
+    requirements:
+        agentURI: .+

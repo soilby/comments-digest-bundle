@@ -54,8 +54,11 @@ class BriefPropertySetter {
                 }
                 catch (\Exception $e)   {
                     $entity = null;
-                    echo "Problem with discovering";
+                    echo "Problem with discovering" . PHP_EOL;
+                    echo $e->getMessage() . PHP_EOL;
+
                     var_dump($value, $expectedClass);
+                    echo PHP_EOL;
                     //FIXME: Add logging
                 }
 

@@ -24,7 +24,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CommentsDigest extends Command    {
+class CommentsAutoDigest extends Command    {
 
 
     /**
@@ -72,65 +72,38 @@ class CommentsDigest extends Command    {
     protected function configure()
     {
         $this
-            ->setName('comments:digest')
-            ->addArgument(
-                'case',
-                InputArgument::OPTIONAL,
-                'Aggregation case, may be "my", "important" or "all"', 'all'
-            )
-            ->addArgument(
-                'period',
-                InputArgument::OPTIONAL,
-                'Comments period', 4
-            )
-
+            ->setName('comments:auto-digest')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $case = $input->getArgument('case');
 
-        switch ($case)  {
-            case 'my':
-                $this->subscribersMiner->disableAllMiners();
-                $this->subscribersMiner->enableMiner('Soil\CommentsDigestBundle\SubscribersMiner\AnswersMiner');
-                $this->subscribersMiner->enableMiner('Soil\CommentsDigestBundle\SubscribersMiner\EntityAuthorsMiner');
+        $availablePeriods = [
+//            24
+            4, 8, 24, 168
+        ];
 
-                break;
+        foreach ($availablePeriods as $period)  {
+            if ($period === 168)    {
+                if (date('D') !== 'Tue') continue;
+                if (date('H') < 17) continue;
+            }
+            $subscribersIndex = $this->subscribersMiner->mine($period);
 
-            case 'important':
-                $this->subscribersMiner->disableAllMiners();
-                $this->subscribersMiner->enableMiner('Soil\CommentsDigestBundle\SubscribersMiner\ImportantForMeEntitiesMiner');
-
-                break;
-
-            case 'all':
-            default:
-                $case = 'all';
+            $this->sentNotifications($subscribersIndex->getBySubscriberIndex());
         }
 
 
 
-        $this->logger->addInfo('Aggregation case ' . $case);
+    }
 
-        $subscribersIndex = $this->subscribersMiner->mine($input->getArgument('period'));
-
-//        $forUser = $subscribersIndex->getForSubscriber("http://www.talaka.by/user/8785");
-
-        $byUserIndex = $subscribersIndex->getBySubscriberIndex();
-//        $userURI = 'http://www.talaka.by/user/12626';
-//        $userIndex = $byUserIndex[$userURI];
-//        var_dump($userIndex);
-//
-//        $this->notifyService->notify('CommentsDigestNotification', $userURI, [
-//            'groupedComments' => $userIndex
-//        ]);
-//        exit();
+    protected function sentNotifications($byUserIndex) {
 
 
         foreach ($byUserIndex as $userURI => $groupedComments)  {
-
+var_dump($userURI);
+            continue;
             try {
                 $this->notifyService->notify('CommentsDigestNotification', $userURI, [
                     'groupedComments' => $groupedComments
@@ -142,10 +115,6 @@ class CommentsDigest extends Command    {
                 var_dump((string) $e);
             }
         }
-
-
-//        $subscribersList = $this->subscribersReducer->reduce($subscribersList);
-
     }
 
 

@@ -22,6 +22,8 @@ class SubscribersMiner {
 
     protected $miners = [];
 
+    protected $minerSwitch = [];
+
     /**
      * @var Logger
      */
@@ -54,24 +56,51 @@ class SubscribersMiner {
 
 
     /**
-     * @param \DateTime $date
+     * @param int $period
      * @return CommentBriefIndex
      */
-    public function mine(\DateTime $date)  {
+    public function mine($period)  {
+
+        $fromDate = new \DateTime('-' . $period . ' hour');
+        $this->logger->addInfo('Gather comments since ' . $fromDate->format('Y-m-d H:i:s'));
+
 
         $subscriptions = new CommentBriefIndex($this->ackService);
         $subscriptions->setLogger($this->logger);
 
         foreach ($this->miners as $miner)   {
+            $minerClass = get_class($miner);
 
-            foreach ($miner->mine($date) as $element)   {
-                $subscriptions->add(get_class($miner), $element);
+            if (!$this->isMinerEnabled($minerClass)) continue;
+
+            foreach ($miner->mine($fromDate, $period) as $element)   {
+                $subscriptions->add($minerClass, $element);
             }
         }
 
         return $subscriptions;
 
 
+    }
+
+    public function disableAllMiners()  {
+        foreach ($this->miners as $miner)   {
+            $minerClass = get_class($miner);
+            $this->enableMiner($minerClass, false);
+        }
+    }
+
+    public function enableMiner($minerClass, $enable = true)    {
+        $this->minerSwitch[$minerClass] = $enable;
+    }
+
+    public function isMinerEnabled($minerClass) {
+        if (!array_key_exists($minerClass, $this->minerSwitch))  {
+            return true;
+        }
+        else {
+            return $this->minerSwitch[$minerClass];
+        }
     }
 
     public function addMiner($miner)    {

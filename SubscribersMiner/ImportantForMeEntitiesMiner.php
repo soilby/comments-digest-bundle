@@ -14,7 +14,7 @@ use Soil\CommentsDigestBundle\Entity\CommentBrief;
 use Soil\CommentsDigestBundle\Service\BriefPropertySetter;
 use Soil\CommentsDigestBundle\Service\SubscribersMiner;
 
-class EntityAuthorsMiner extends RDFMinerAbstract {
+class ImportantForMeEntitiesMiner extends RDFMinerAbstract {
 
 
 
@@ -29,28 +29,25 @@ select ?comment ?creationDate ?author ?entity ?subscriber
 
 where {
      ?comment    a tal:Comment .
-     
      ?comment tal:author ?author .
-
      ?comment tal:relatedObject ?entity .
 
-     ?entity tal:author ?subscriber .
+     ?entity tal:importantFor ?subscriber .
+
 
      ?comment tal:creationDate ?creationDate .
-
      FILTER (?creationDate > $fromDate ) .
 
      OPTIONAL {
         ?subscriber tal:subscriptionApplied ?subscription .
         ?subscription tal:subscriptionPeriod ?period .
         ?subscription tal:subscriptionType ?subscriptionType .
-
      }
 
-     FILTER (!bound(?subscription) || ?subscriptionType = tal:SubscriptionMyEntities) .
+     FILTER (!bound(?subscription) || ?subscriptionType = tal:SubscriptionImportant) .
      $periodFilter
 
-    }
+}
 QUERY;
         //FILTER (?subscriber = <http://www.talaka.by/user/132> ) .
 

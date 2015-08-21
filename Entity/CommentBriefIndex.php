@@ -89,6 +89,9 @@ class CommentBriefIndex {
     }
 
 
+    public function getCount()  {
+        return count($this->bySubscriberIndex);
+    }
 
 
 
