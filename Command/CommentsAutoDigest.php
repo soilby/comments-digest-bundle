@@ -102,8 +102,7 @@ class CommentsAutoDigest extends Command    {
 
 
         foreach ($byUserIndex as $userURI => $groupedComments)  {
-var_dump($userURI);
-            continue;
+
             try {
                 $this->notifyService->notify('CommentsDigestNotification', $userURI, [
                     'groupedComments' => $groupedComments

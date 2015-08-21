@@ -31,9 +31,9 @@ services:
         class: Soil\CommentsDigestBundle\Service\SubscribersMiner
         arguments: []
         calls:
-#            - [addMiner, [@soil_comment_digest.subscribers_miner.entity_authors_miner]]
+            - [addMiner, [@soil_comment_digest.subscribers_miner.entity_authors_miner]]
             - [addMiner, [@soil_comment_digest.subscribers_miner.answers_miner]]
-#            - [addMiner, [@soil_comment_digest.subscribers_miner.important_for_me_miner]]
+            - [addMiner, [@soil_comment_digest.subscribers_miner.important_for_me_miner]]
             - [setAckService, [@soil_ack_service.service.ack]]
             - [setLogger, [@logger]]
         tags:
