@@ -79,6 +79,11 @@ class CommentsAutoDigest extends Command    {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
+        $this->logger->addInfo('Config info:');
+        foreach ($this->configInfo as $name => $value)  {
+            $this->logger->addInfo($name . ': ' . $value);
+        }
+
         $availablePeriods = [
 //            24
             4, 8, 24, 168
@@ -100,7 +105,6 @@ class CommentsAutoDigest extends Command    {
 
     protected function sentNotifications($byUserIndex) {
 
-
         foreach ($byUserIndex as $userURI => $groupedComments)  {
 
             try {
@@ -108,10 +112,12 @@ class CommentsAutoDigest extends Command    {
                     'groupedComments' => $groupedComments
                 ]);
                 sleep(1);
+                exit("FIN");
             }
             catch(\Exception $e)    {
                 echo 'Problem with notification for ' . $userURI;
                 var_dump((string) $e);
+                EXIT("EXCEPTION");
             }
         }
     }

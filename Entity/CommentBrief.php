@@ -18,6 +18,9 @@ class CommentBrief {
      */
     protected $comment;
 
+    /**
+     * @var \DateTime
+     */
     protected $creationDate;
 
     /**

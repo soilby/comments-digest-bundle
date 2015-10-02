@@ -34,6 +34,7 @@ services:
             - [addMiner, [@soil_comment_digest.subscribers_miner.entity_authors_miner]]
             - [addMiner, [@soil_comment_digest.subscribers_miner.answers_miner]]
             - [addMiner, [@soil_comment_digest.subscribers_miner.important_for_me_miner]]
+#            - [addMiner, [@soil_comment_digest.subscribers_miner.forum_new_post_miner]]
             - [setAckService, [@soil_ack_service.service.ack]]
             - [setLogger, [@logger]]
         tags:
@@ -99,5 +100,15 @@ services:
         calls:
             - [setEndpoint, [@soil_rdf_processor.sparql_client]]
             - [setDefaultSubscriptionPeriod, [168]]
+        tags:
+            -  { name: soil_comments_digest.subscribers_miner }
+
+    soil_comment_digest.subscribers_miner.forum_new_post_miner:
+        class: Soil\CommentsDigestBundle\SubscribersMiner\ForumNewPostMiner
+        arguments: [@soil_comment_digest.service.brief_property_setter]
+        calls:
+            - [setEndpoint, [@soil_rdf_processor.sparql_client]]
+            - [setHttpClient, [@buzz]]
+            - [setDefaultSubscriptionPeriod, [8]]
         tags:
             -  { name: soil_comments_digest.subscribers_miner }

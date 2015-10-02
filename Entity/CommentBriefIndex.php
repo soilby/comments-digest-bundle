@@ -42,8 +42,16 @@ class CommentBriefIndex {
             $this->checkSumIndex[$checkSum] = $commentBrief;
             $this->checkSumMinerIndex[$checkSum] = $minerKey;
 
-            $test = $this->ackService->test('comment_digest', $checkSum);
-            $this->logger->addAlert('Checksum: ' . $checkSum);
+            if ($checkSum)  {
+                $this->logger->addAlert('Checksum: ' . $checkSum);
+                $test = $this->ackService->test('comment_digest', $checkSum);
+            }
+            else    {
+                $this->logger->addAlert('Checksum not used');
+                $test = false;
+            }
+
+
             if (!$test) {
                 $subscriber = $commentBrief->getSubscriber();
                 if (!array_key_exists($subscriber, $this->bySubscriberIndex)) $this->bySubscriberIndex[$subscriber] = [$minerKey => []];
