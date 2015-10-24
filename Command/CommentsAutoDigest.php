@@ -112,12 +112,10 @@ class CommentsAutoDigest extends Command    {
                     'groupedComments' => $groupedComments
                 ]);
                 sleep(1);
-                exit("FIN");
             }
             catch(\Exception $e)    {
                 echo 'Problem with notification for ' . $userURI;
                 var_dump((string) $e);
-                EXIT("EXCEPTION");
             }
         }
     }

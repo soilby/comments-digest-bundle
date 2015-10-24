@@ -110,5 +110,7 @@ services:
             - [setEndpoint, [@soil_rdf_processor.sparql_client]]
             - [setHttpClient, [@buzz]]
             - [setDefaultSubscriptionPeriod, [8]]
+            - [setLogger, [@logger]]
         tags:
-            -  { name: soil_comments_digest.subscribers_miner }
+            - { name: soil_comments_digest.subscribers_miner }
+            - { name: monolog.logger, channel: queue }

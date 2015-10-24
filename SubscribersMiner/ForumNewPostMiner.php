@@ -14,6 +14,8 @@ use Buzz\Message\Request;
 use Buzz\Message\Response;
 use EasyRdf\Literal;
 use EasyRdf\Resource;
+use Monolog\Logger;
+use Psr\Log\LoggerAwareTrait;
 use Sensio\Bundle\BuzzBundle\SensioBuzzBundle;
 use Soil\CommentsDigestBundle\Entity\CommentBrief;
 use Soil\CommentsDigestBundle\Entity\ForumTopicBrief;
@@ -24,6 +26,7 @@ use Zend\Http\Client;
 
 class ForumNewPostMiner extends RDFMinerAbstract {
 
+    use LoggerAwareTrait;
 
     /**
      * @var Curl
@@ -73,7 +76,8 @@ QUERY;
 //            var_dump($userInfo['userName']);
             $topics = $userInfo['topics'];
 
-
+            $this->logger->addInfo('User: ' . $userURI);
+            $this->logger->addInfo('Topics count: ' . is_array($topics) ? count($topics) : 'NOT ARRAY!');
 
             foreach ($topics as $topicURI => $topicName)    {
                 $brief = new ForumTopicBrief();
