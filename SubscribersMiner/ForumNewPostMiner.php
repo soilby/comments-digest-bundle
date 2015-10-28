@@ -51,20 +51,16 @@ where {
 
 QUERY;
 
-//        echo $query;
-//
-//        $result = $this->endpoint->query($query);
-//
-//        $subscriptions = [];
-//        foreach ($result as $element) {
-//            $subscriptions[] = [
-//                'user_uri' => $element->subscriber->getUri(),
-//                'period' => $element->subscriptionPeriod->getValue()
-//            ];
-//        }
+        echo $query;
 
-//        var_dump($subscriptions);
+        $result = $this->endpoint->query($query);
 
+        $subscriptions = [];
+        foreach ($result as $element) {
+            $subscriptions[$element->subscriber->getUri()] = [
+                'period' => $element->subscriptionPeriod->getValue()
+            ];
+        }
 
         $response = $this->httpClient->submit('http://www.talaka.by/forum/extensions/talaka_integration/get_new_topics.php', [
             'from' => $fromDate->getTimestamp()
@@ -72,6 +68,15 @@ QUERY;
 
         $data = json_decode($response->getContent(), true);
         foreach ($data as $userURI => $userInfo)    {
+
+            if (array_key_exists($userURI, $subscriptions)) {
+                if ($subscriptions[$userURI]['period'] != $period)  {
+                    $this->logger->addDebug('Skip user for period (' . $period . ')' . $userURI);
+
+                    continue;
+                }
+            }
+
 //            var_dump($userURI);
 //            var_dump($userInfo['userName']);
             $topics = $userInfo['topics'];
