@@ -28,25 +28,47 @@ class ImportantForMeEntitiesMiner extends RDFMinerAbstract {
 select ?comment ?creationDate ?author ?entity ?subscriber
 
 where {
-     ?comment    a tal:Comment .
-     ?comment tal:author ?author .
-     ?comment tal:relatedObject ?entity .
+    {
+         ?comment    a tal:Comment .
+         ?comment tal:author ?author .
+         ?comment tal:relatedObject ?entity .
 
-     ?entity tal:importantFor ?subscriber .
+         ?entity tal:importantFor ?subscriber .
 
+         ?comment tal:creationDate ?creationDate .
+         FILTER (?creationDate > $fromDate ) .
 
-     ?comment tal:creationDate ?creationDate .
-     FILTER (?creationDate > $fromDate ) .
+         OPTIONAL {
+            ?subscriber tal:subscriptionApplied ?subscription .
+            ?subscription tal:subscriptionPeriod ?period .
+            ?subscription tal:subscriptionType ?subscriptionType .
+         }
 
-     OPTIONAL {
-        ?subscriber tal:subscriptionApplied ?subscription .
-        ?subscription tal:subscriptionPeriod ?period .
-        ?subscription tal:subscriptionType ?subscriptionType .
-     }
+         FILTER (!bound(?subscription) || ?subscriptionType = tal:SubscriptionImportant) .
+         FILTER (bound(?subscriber)) .
 
-     FILTER (!bound(?subscription) || ?subscriptionType = tal:SubscriptionImportant) .
-     $periodFilter
+         $periodFilter
+    } UNION {
+         ?comment    a tal:Comment .
+         ?comment tal:author ?author .
+         ?comment tal:relatedObject ?entity .
 
+         ?entity tal:hasMember ?subscriber .
+
+         ?comment tal:creationDate ?creationDate .
+         FILTER (?creationDate > $fromDate ) .
+
+         OPTIONAL {
+            ?subscriber tal:subscriptionApplied ?subscription .
+            ?subscription tal:subscriptionPeriod ?period .
+            ?subscription tal:subscriptionType ?subscriptionType .
+         }
+
+         FILTER (!bound(?subscription) || ?subscriptionType = tal:SubscriptionImportant) .
+         FILTER (bound(?subscriber)) .
+
+         $periodFilter
+    }
 }
 QUERY;
         //FILTER (?subscriber = <http://www.talaka.by/user/132> ) .

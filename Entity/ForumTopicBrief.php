@@ -14,7 +14,7 @@ class ForumTopicBrief extends CommentBrief {
 
 
     public function getCheckSum()   {
-        return $this->subscriber . '-' . $this->entity->getOrigin() . '-' . $this->creationDate->format('Y-m-d');
+        return $this->subscriber . '-' . $this->entity->getOrigin();
     }
 
 

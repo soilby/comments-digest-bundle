@@ -48,14 +48,12 @@ where {
      }
 
      FILTER (!bound(?subscription) || ?subscriptionType = tal:SubscriptionMyEntities) .
-     $periodFilter
-
+$periodFilter
     }
 QUERY;
         //FILTER (?subscriber = <http://www.talaka.by/user/132> ) .
 
         echo $query;
-
         $result = $this->endpoint->query($query);
 
         foreach ($result as $element)   {
